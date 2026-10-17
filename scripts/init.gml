@@ -27,23 +27,23 @@ char_height             = 56;                   //                  the height o
 knockback_adj           = 1;		            // 0.9  -  1.2
 
 // Ground movement
-walk_speed              = 3.25;		            // 3    -  4.5
-walk_accel              = 0.2;		            // 0.2  -  0.5
+//walk_speed              = 3.25;		            // 3    -  4.5
+//walk_accel              = 0.2;		            // 0.2  -  0.5
 walk_turn_time          = 6;		            // 6
 initial_dash_time       = 8;		            // 8    -  16       zetterburn's is 14
 initial_dash_speed      = 7;		            // 4    -  9
-dash_speed              = 6.5;		            // 5    -  9
-dash_turn_time          = 14;		            // 8    -  20
+//dash_speed              = 6.5;		            // 5    -  9
+//dash_turn_time          = 14;		            // 8    -  20
 dash_turn_accel         = 1.5;		            // 0.1  -  2
-dash_stop_time          = 6;		            // 4    -  6        zetterburn's is 4
-dash_stop_percent       = 0.35;		            // 0.25 -  0.5
+//dash_stop_time          = 6;		            // 4    -  6        zetterburn's is 4
+//dash_stop_percent       = 0.35;		            // 0.25 -  0.5
 ground_friction         = 0.5;		            // 0.3  -  1
 moonwalk_accel          = 1.3;		            // 1.2  -  1.4
 
 // Air movement
-leave_ground_max        = 6;		            // 4    -  8
-max_jump_hsp            = 6;		            // 4    -  8
-air_max_speed           = 4;  		            // 3    -  7
+//leave_ground_max        = 6;		            // 4    -  8
+//max_jump_hsp            = 6;		            // 4    -  8
+//air_max_speed           = 4;  		            // 3    -  7
 jump_change             = 3;		            // 3
 air_accel               = 0.3;		            // 0.2  -  0.4
 prat_fall_accel         = 0.85;		            // 0.25 -  1.5
@@ -75,14 +75,44 @@ roll_backward_max       = roll_forward_max;		// 7    -  11       always the same
 air_dodge_speed         = 7.5;		            // 7.5  -  8
 techroll_speed          = 10;		            // 8    -  11
 
+// Acceleration
+walk_spd_mult = 1.014;
+dash_spd_mult = 1.017;
+min_walk_spd  = 1.5;
+min_dash_spd  = 5;
+max_dash_spd  = 9;
+run_img = 0;
+dash_stride_k     = 0.06; //Dash Anim Speed
+dash_max_stride_k = 0.04; //Same but Dash Max
+
+air_max_base          = 4;   // tu air_max_speed
+base_dash_stop_time   = 6;   // tus valores actuales
+base_dash_turn_time   = 14;
+base_dash_stop_percent = 0.35;
+
+walk_speed        = min_walk_spd;
+dash_speed        = min_dash_spd;
+air_max_speed     = air_max_base;
+dash_stop_time    = base_dash_stop_time;
+dash_turn_time    = base_dash_turn_time;
+dash_stop_percent = base_dash_stop_percent;
+leave_ground_max  = max_dash_spd;
+max_jump_hsp      = 4;
+
+new_hsp = 0;
+new_vsp = 0;
+keep_air_speed = 0;
+hugging_wall = false;
+was_free = free;
+
 
 
 // Animation Info
 // Misc. animation speeds
 idle_anim_speed         = 0.15;
 crouch_anim_speed       = 0.1;
-walk_anim_speed         = 0.2;
-dash_anim_speed         = 0.2;
+walk_anim_speed = 0.1 + walk_speed/80;
+dash_anim_speed = 0.12 + dash_speed/100;
 pratfall_anim_speed     = 0.25;
 
 // Crouch
@@ -313,6 +343,20 @@ hb_color[1] = $00FFFF;  //any color hex value works ($BBGGRR), using this one fo
 
 //////////////////////////////////////////////////////// WORKSHOP COMPATIBILIES ////////////////////////////////////////////////////////
 
+
+//////////////////////////////////////////////////////// ROARING KNIGHT FLAVOUR TEXT ////////////////////////////////////////////////////////
+
+Roaring_Knight_Death_Text =
+[
+"* Soku was blinded",
+" by their actions.",
+]
+Roaring_Knight_Executable_Text =
+[
+"* Soku's judgement",
+" faded into darkness.",
+]
+//
 
 //////////////////////////////////////////////////////// RALSEI CHECK ////////////////////////////////////////////////////////
 

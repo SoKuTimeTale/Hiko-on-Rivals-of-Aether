@@ -12,6 +12,30 @@ switch (state)
 			image_index = 1;
 		}
 		break;
+		case PS_RESPAWN:
+			if (get_player_stocks(player) == 1) sprite_index = sprite_get("respawn_laststock");
+			else sprite_index = sprite_get("respawn_normal");
+			image_index = state_timer * 0.15;
+		break;
+		break;
+	case PS_WALK:
+		if (state_timer == 0) run_img = 0;
+		if (!hitpause) run_img += walk_anim_speed;
+		image_index = run_img;
+	break;
+	case PS_DASH:
+		if (state_timer == 0) run_img = 0;
+		if (dash_speed >= max_dash_spd - 0.05)
+		{
+			sprite_index = sprite_get("dash_max");
+			if (!hitpause) run_img += abs(hsp) * dash_max_stride_k;
+		}
+		else
+		{
+			if (!hitpause) run_img += abs(hsp) * dash_stride_k;
+		}
+	image_index = run_img;
+	break;
 	case PS_ATTACK_GROUND: case PS_ATTACK_AIR:
 		switch (attack)
 		{
@@ -69,6 +93,7 @@ switch (state)
 	case PS_BURIED:
 		hurt_img = 2;
 		break;
+		
 }
 
 //sets image_index to hurt_img. this allows us to put all the hurt sprites in one strip

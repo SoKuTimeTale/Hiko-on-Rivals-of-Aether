@@ -1,7 +1,8 @@
 //update.gml
 init_shader();
 //////////////////////////////////////////////////////// CHARACTER SPECIFIC UPDATE /////////////////////////////////////////////////////////
-
+hugging_wall = (position_meeting(x + (spr_dir ? 19 : -20), y - 16, asset_get("par_block")));
+do_soku_physics();
 
 
 ////////////////////////////////////////////////////////////////// MISC. //////////////////////////////////////////////////////////////////
@@ -82,5 +83,145 @@ prep_hitboxes();
         for (var i = 1; i < str_length; i+=4096) {
             get_string(`variables pg ${it++}/${max_pages}`, string_copy(str,i,4096));
         }
+    }
+}
+#define do_soku_physics
+{
+    if (leave_ground_max != max_dash_spd) leave_ground_max = max_dash_spd;
+
+    if (hugging_wall) //caminando contra una pared
+    {
+        new_hsp = 0;
+        walk_speed = min_walk_spd;
+        dash_speed = min_dash_spd;
+        dash_stop_time = base_dash_stop_time;
+        dash_turn_time = base_dash_turn_time;
+        dash_stop_percent = base_dash_stop_percent;
+
+        if (state == PS_DASH || state == PS_DASH_START) state = PS_WALK;
+        clear_button_buffer(PC_LEFT_HARD_PRESSED);
+        clear_button_buffer(PC_RIGHT_HARD_PRESSED);
+    }
+    else
+    {
+        if (prev_prev_state == PS_ATTACK_GROUND && state_timer == 0) //conservar velocidad tras ataques
+        {
+            walk_speed = clamp(abs(new_hsp), min_walk_spd, min_dash_spd);
+            dash_speed = clamp(abs(new_hsp), min_dash_spd, max_dash_spd);
+        }
+
+        if (state == PS_RESPAWN)
+        {
+            new_hsp = 0;
+            new_vsp = 0;
+            leave_ground_max = 0;
+            max_jump_hsp = 4;
+            air_max_speed = air_max_base;
+            keep_air_speed = air_max_base;
+            walk_speed = min_walk_spd;
+            dash_speed = min_dash_spd;
+        }
+        else
+        {
+            if (state == PS_WALK)
+            {
+                if (abs(new_hsp) > 0) walk_speed = abs(new_hsp);
+                new_hsp = 0;
+
+                if (sign(hsp) != sign(spr_dir)) walk_speed += moonwalk_accel/12;
+
+                walk_speed = clamp(walk_speed * walk_spd_mult, min_walk_spd, min_dash_spd);
+                walk_anim_speed = 0.15 + walk_speed/50;
+                if (walk_speed == min_dash_spd && state != PS_DASH) set_state(PS_DASH);
+            }
+            else if (state == PS_DASH)
+            {
+                if (abs(new_hsp) > 0) dash_speed = abs(new_hsp);
+                new_hsp = 0;
+
+                dash_speed = clamp(dash_speed * dash_spd_mult, min_dash_spd, max_dash_spd);
+                dash_stop_time = clamp(dash_stop_time * dash_spd_mult, 0, 16);
+                dash_turn_time = clamp(dash_turn_time * dash_spd_mult, 0, 26);
+                dash_stop_percent = clamp(dash_stop_percent * dash_spd_mult, 0, 0.9);
+
+                dash_anim_speed = 0.3 + dash_speed/50;
+            }
+            else if (state == PS_DASH_TURN)
+            {
+                if (abs(new_hsp) > 0) dash_speed = abs(new_hsp);
+                new_hsp = 0;
+                dash_speed += dash_spd_mult - 1;
+                dash_speed = clamp(dash_speed, min_dash_spd, max_dash_spd);
+            }
+            else if (state == PS_ATTACK_GROUND || state == PS_ATTACK_AIR)
+            {
+                if (state_timer == 0)
+                {
+                    new_hsp = (hitpause ? old_hsp : hsp);
+                    new_vsp = (hitpause ? old_vsp : vsp);
+                }
+            }
+            else if (free && state != PS_AIR_DODGE) //guardar velocidad en el aire
+            {
+                if ((left_down && spr_dir == -1 || right_down && spr_dir == 1) && keep_air_speed > air_max_base) air_max_speed = keep_air_speed;
+                else
+                {
+                    air_max_speed = air_max_base;
+                    keep_air_speed = air_max_base;
+                }
+
+                new_hsp = (hitpause ? old_hsp : hsp) * 0.75;
+
+                walk_speed = clamp(abs(new_hsp), min_walk_spd, min_dash_spd);
+                dash_speed = clamp(abs(new_hsp), min_dash_spd, max_dash_spd);
+            }
+            else if (!free)
+            {
+                max_jump_hsp = abs(new_hsp) < 4 ? 4 : abs(new_hsp);
+                switch (state)
+                {
+                    case PS_JUMPSQUAT: case PS_DASH_START:
+                        new_hsp = (hitpause ? old_hsp : hsp);
+                        keep_air_speed = abs((hitpause ? old_hsp : hsp));
+                        break;
+                    case PS_WAVELAND:
+                        if (state_timer == 0)
+                        {
+                            wave_friction = 0.15 - abs(new_hsp/max_dash_spd/10);
+                            wave_land_time = 6 + abs(new_hsp/2);
+
+                            walk_speed = clamp(abs(new_hsp), (min_walk_spd+min_dash_spd)/2, min_dash_spd);
+                            dash_speed = clamp(abs(new_hsp), min_dash_spd, max_dash_spd);
+
+                            new_hsp *= 4;
+                        }
+                        break;
+                    case PS_LAND: case PS_LANDING_LAG: case PS_FIRST_JUMP: case PS_PRATLAND:
+                        if (was_free)
+                        {
+                            new_hsp = (hitpause ? old_hsp : hsp);
+                            if (new_hsp < min_walk_spd) walk_speed = min_walk_spd;
+                            if (new_hsp < min_dash_spd) dash_speed = min_dash_spd;
+                        }
+                        break;
+                    default: //reset
+                        if (prev_prev_state != PS_WAVELAND)
+                        {
+                            walk_speed = min_walk_spd;
+
+                            if (state != PS_DASH_STOP && state != PS_DASH_TURN)
+                            {
+                                dash_speed = min_dash_spd;
+                                dash_stop_time = base_dash_stop_time;
+                                dash_turn_time = base_dash_turn_time;
+                                dash_stop_percent = base_dash_stop_percent;
+                            }
+                        }
+                        if (new_hsp > 0) new_hsp -= 0.25;
+                        break;
+                }
+            }
+        }
+        if (state == PS_PRATFALL) air_max_speed *= 0.6;
     }
 }

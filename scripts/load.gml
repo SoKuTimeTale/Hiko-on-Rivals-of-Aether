@@ -1,11 +1,12 @@
 //load.gml
 
 //ground movement
-sprite_change_offset("idle",            23, 47);
+sprite_change_offset("idle",            17, 33);
 sprite_change_offset("crouch",          24, 47);
-sprite_change_offset("walk",            24, 47);
+sprite_change_offset("walk",            18, 36);
 sprite_change_offset("walkturn",        24, 47);
-sprite_change_offset("dash",            24, 47);
+sprite_change_offset("dash",            25, 30);
+sprite_change_offset("dash_max",        40, 31);
 sprite_change_offset("dashstart",       24, 47);
 sprite_change_offset("dashstop",        24, 47);
 sprite_change_offset("dashturn",        24, 47);
@@ -13,9 +14,9 @@ sprite_change_offset("dashturn",        24, 47);
 //air movement
 sprite_change_offset("jumpstart",       24, 47);
 sprite_change_offset("jump",            24, 43);
-sprite_change_offset("doublejump",      24, 43);
+sprite_change_offset("doublejump",      24, 45);
 sprite_change_offset("walljump",        24, 47);
-sprite_change_offset("pratfall",        24, 47);
+sprite_change_offset("pratfall",        19, 39);
 sprite_change_offset("land",            24, 47);
 sprite_change_offset("landinglag",      24, 47);
 
@@ -58,10 +59,11 @@ sprite_change_offset("dspecial_air",    32, 47, small_sprites);
 
 //misc
 sprite_change_offset("taunt",           24, 47, small_sprites);
+sprite_change_offset("respawn_normal",  18, 28, small_sprites);
+sprite_change_offset("respawn_laststock",   10, 29, small_sprites);
 sprite_change_offset("intro",           24, 47, small_sprites);
-sprite_change_offset("plat_post",       32, 47); //draws platform over the player
 sprite_change_offset("plat",            32, 47); //don't use this
-sprite_change_offset("plat_pre",        32, 47); //draws platform behind the player
+sprite_change_offset("plat_pre",        40, 17); //draws platform behind the player
 
 sprite_change_offset("hud_player_arrow",3, 2);
 sprite_change_offset("offscreen_icons", 16, 16);
